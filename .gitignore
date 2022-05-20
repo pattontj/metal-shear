@@ -1,4 +1,6 @@
 
+go.mod
+go.sum
 
 # Node/React stuff
 frontend/client/node_modules
