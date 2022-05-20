@@ -1,0 +1,28 @@
+
+
+
+.clip-container {
+
+    margin: auto;
+    margin-bottom: 15px;
+    border: 2px;
+    border-style: solid;
+    border-color: black;
+    border-radius: 25px;
+
+ 
+
+    padding-bottom: 100px;
+    padding-top: 10px;
+
+    font-size: large;
+
+    width: 60%;
+
+}
+
+.upload-button {
+    margin: 4%;
+    float: right;
+
+}
