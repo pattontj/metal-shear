@@ -5,6 +5,7 @@ import(
 		"fmt"
 		"log"
 		"strconv"
+		"sync"
 
 		"net/http"
 		"github.com/gin-gonic/gin"
@@ -17,19 +18,19 @@ import(
 type vtuber struct {
 	ID 			string `json:"id"` 
 	Name 		string `json:"name"`
+	Channel		string `json:"channel"`
 	Affiliation string `json:"affiliation"`
 }
 
 
 
 type clip struct {
-	ID string
-	link string
-	vtuber string
-	affiliation string
-	tsBegin string
-	tsEnd string
-
+	ID 			string `json:"id"`
+	Link 		string `json:"link"`
+	TsBegin 	string `json:"tsBegin"`
+	TsEnd 		string `json:"tsEnd"`
+	VtuberID 	string `json:"vtuberID"`
+	Vtuber 		vtuber `json:"vtuber"`
 }
 
 var vtubers = []vtuber {
@@ -160,6 +161,88 @@ func getVtuberByName(c *gin.Context) {
 }
 
 
+// this func is actually a fucking nightmare 
+// TODO: un-thread this, original err was referring to the wrong row
+func getClips( c *gin.Context) {
+
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
+	// wait group for threading first row query
+	var wg sync.WaitGroup
+
+	// wrap clips in mutex container
+	type Container struct {
+		mu sync.Mutex
+		clips []clip
+	}
+
+	clipsContainer := Container{}
+
+	wg.Add(1)
+
+	go func(c *Container) {
+
+		// lock mutex
+		c.mu.Lock()
+		defer c.mu.Unlock()
+
+		// sends back done signal at end of func, wg.Wait picks this up
+		defer wg.Done()
+
+		rows, err := db.Query("SELECT * FROM clips")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+
+		for rows.Next() {
+			var clp clip
+			
+			if err := rows.Scan(&clp.ID, &clp.Link, &clp.TsBegin, &clp.TsEnd, &clp.VtuberID); err != nil {
+				log.Fatal(err)
+			}
+
+			c.clips = append(c.clips, clp)
+		}
+
+		rows.Close()
+	}(&clipsContainer)
+
+	// wait for goroutine to finish (hopefully avoids race condition with rows)
+	wg.Wait()
+
+	actualClips := clipsContainer.clips
+
+	var vt = []vtuber {}
+
+	vtuberRow, err := db.Query("SELECT * FROM vtuber")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for vtuberRow.Next() {
+		var chuuba vtuber
+		if err := vtuberRow.Scan(&chuuba.ID, &chuuba.Name, &chuuba.Channel, &chuuba.Affiliation); err != nil {
+			log.Fatal(err)
+		}
+		vt = append(vt, chuuba)
+	}
+
+	// match vtuber info to clip and copy into struct
+	for i, c := range actualClips {	
+		for _, v := range vt {
+			if c.VtuberID == v.ID {
+			actualClips[i].Vtuber = v
+			}
+		} 
+	}
+
+	vtuberRow.Close()
+
+	c.IndentedJSON(http.StatusOK, actualClips)
+}
+
+
 func example(c *gin.Context) {
 	c.HTML( http.StatusOK,
 		"index.html",
@@ -222,6 +305,9 @@ func main() {
 		api.GET("/vtubers/page", getVtubers)
 		api.GET("/vtubers/page/:page", getVtuberPage)
 		api.GET("/vtubers/:name", getVtuberByName)
+
+
+		api.GET("/clips", getClips)
 
 		api.POST("vtubers", postVtubers)
 	}

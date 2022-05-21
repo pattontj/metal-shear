@@ -2,6 +2,9 @@
 go.mod
 go.sum
 
+#ignore exe build
+metal-shear.exe
+
 # Node/React stuff
 frontend/client/node_modules
 frontend/client/.pnp

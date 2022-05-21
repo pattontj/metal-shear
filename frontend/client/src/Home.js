@@ -6,21 +6,22 @@ class Home extends React.Component {
 
     state = 
     {
-        vtubers: [],
+        clips: [],
     }
 
     componentDidMount() {
 
-        fetch("http://localhost:8080/api/vtubers")
+        fetch("http://localhost:8080/api/clips")
             .then( response => response.json() )
             .then ( 
-               data => this.setState( {vtubers: data} )
+               data => this.setState( {clips: data} )
             )
             .catch(err => console.log("response failed, ", err));
 
     }
 
     render() { 
+        console.log(this.state.clips)
         return(
         <div style={{alignContent: "center"}} >
             <h1>Hello, Sailor!</h1> 
@@ -28,7 +29,7 @@ class Home extends React.Component {
         {/* <li key={vtuber.toString()}>{vtuber.name}</li>*/}
 
          
-            { this.state.vtubers.map( (vtuber) => <ClipContainer key={vtuber.id} name={vtuber.name} /> )}
+            { this.state.clips.map( (clip) => <ClipContainer key={clip.id} vtuber={clip.vtuber} link={clip.link} /> )}
           
         </div>
         )
