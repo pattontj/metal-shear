@@ -33,12 +33,6 @@ type clip struct {
 	Vtuber 		vtuber `json:"vtuber"`
 }
 
-var vtubers = []vtuber {
-	{ ID: "1", Name: "Inugami Korone", Affiliation: "Hololive" },
-	{ ID: "2", Name: "Pomu Rainpuff",  Affiliation: "Nijisanji" },
-	{ ID: "3", Name: "Kson", 		   Affiliation: "Indie" },
-	{ ID: "4", Name: "Nina Kosaka",    Affiliation: "Nijisanji" },
-}
 
 func getHome(c *gin.Context) {
 	// c.HTML(http.StatusOK, "index.html", nil)
@@ -249,7 +243,9 @@ func getClips( c *gin.Context ) {
 
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	query := "SELECT clips.id, clips.link, vtuber.title, vtuber.channel, vtuber.affiliation FROM clips JOIN vtuber ON vtuber.id=clips.vtuberID"
+	query := "SELECT clips.id, clips.link, vtuber.title, vtuber.channel, vtuber.affiliation " + 
+				"FROM clips " + 
+				"JOIN vtuber ON vtuber.id=clips.vtuberID"
 
 	rows, err := db.Query(query)
 	if err != nil {
