@@ -5,7 +5,7 @@ import(
 		"fmt"
 		"log"
 		"strconv"
-		"sync"
+//		"sync"
 
 		"net/http"
 		"github.com/gin-gonic/gin"
@@ -163,6 +163,8 @@ func getVtuberByName(c *gin.Context) {
 
 // this func is actually a fucking nightmare 
 // TODO: un-thread this, original err was referring to the wrong row
+
+/*
 func getClips( c *gin.Context) {
 
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -240,6 +242,35 @@ func getClips( c *gin.Context) {
 	vtuberRow.Close()
 
 	c.IndentedJSON(http.StatusOK, actualClips)
+}
+*/
+
+func getClips( c *gin.Context ) {
+
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
+	query := "SELECT clips.id, clips.link, vtuber.title, vtuber.channel, vtuber.affiliation FROM clips JOIN vtuber ON vtuber.id=clips.vtuberID"
+
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	var clips = []clip {}
+
+	for rows.Next() {
+		var clp clip
+		if err := rows.Scan( &clp.ID, &clp.Link, &clp.Vtuber.Name, &clp.Vtuber.Channel, &clp.Vtuber.Affiliation ); err != nil {
+			log.Fatal(err)
+		}
+		clips = append(clips, clp)
+	}
+
+	c.IndentedJSON(http.StatusOK, clips)
+	return 
+
 }
 
 
