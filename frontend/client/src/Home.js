@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 
+import { Link } from 'react-router-dom';
+
 import ClipContainer from './comps/ClipContainer';
+import NavBar from './comps/NavBar';
 
 class Home extends React.Component {
 
@@ -25,10 +28,9 @@ class Home extends React.Component {
         return(
         <div style={{alignContent: "center"}} >
             <h1>Hello, Sailor!</h1> 
-            
-        {/* <li key={vtuber.toString()}>{vtuber.name}</li>*/}
 
-         
+            <NavBar />
+
             { this.state.clips.map( (clip) => <ClipContainer key={clip.id} vtuber={clip.vtuber} link={clip.link} /> )}
           
         </div>
