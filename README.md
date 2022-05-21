@@ -1,17 +1,17 @@
 # A weapon to surpass metal gear
 
 ## TODO features:
-[ ] Automated clip creation via ffmpeg
-[ ] Auto-upload to Youtube
-[ ] Discord Bot integration
-[ ] Chat stats page (Statsuki)
+ - [ ] Automated clip creation via ffmpeg
+ - [ ] Auto-upload to Youtube
+ - [ ] Discord Bot integration
+ - [ ] Chat stats page (Statsuki)
 
 
 ## Far off features:
-[ ] Automated hard-subbing via YT captions and ffmpeg
-[ ] Combine clips into compilation videos
-[ ] NND style chat overlay
-[ ] View whole chat for a VOD
+ - [ ] Automated hard-subbing via YT captions and ffmpeg
+ - [ ] Combine clips into compilation videos
+ - [ ] NND style chat overlay
+ - [ ] View whole chat for a VOD
 
 
 ## How to Run (development):
