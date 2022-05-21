@@ -266,7 +266,6 @@ func getClips( c *gin.Context ) {
 
 	c.IndentedJSON(http.StatusOK, clips)
 	return 
-
 }
 
 

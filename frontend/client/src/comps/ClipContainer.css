@@ -3,6 +3,8 @@
 
 .clip-container {
 
+    position: relative;
+
     margin: auto;
     margin-bottom: 15px;
     border: 2px;
@@ -12,7 +14,7 @@
 
  
 
-    padding-bottom: 100px;
+    padding-bottom: 150px;
     padding-top: 10px;
 
     font-size: large;
@@ -21,8 +23,46 @@
 
 }
 
-.upload-button {
-    margin: 4%;
-    float: right;
+.upload-button {    
+    bottom: 0;
+    right: 0;
+
+    padding: 5px;
+    margin: 15px;
+    position: absolute;
+}
+
+.timestamp {
+
+    float: left;
+
+    margin-left: 10px;
+    margin-bottom: 15px;
+
+    margin-right: 10%;
+
+
+    display: inline-block;
 
 }
+
+.description {
+    float: left;
+    display: inline-block;
+}
+
+.description-input {
+    width: 400px;
+    height: 100px;
+    max-width: 400px;
+    max-height: 100px;
+    max-width: 400px;
+    max-height: 100px;
+    resize: both;
+}
+
+.topdown-container {
+    display: flex;
+    flex-direction: column;
+}
+

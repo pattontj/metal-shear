@@ -36,3 +36,6 @@ Simply exectute `go build main.go`.
 Inside the `frontend/client` folder, run `npm run build`. This will compile the client into a single `index.html` file and webpack it.
 The contents of build should be ready to serve over `:8080`. 
  
+
+ ## Links
+  - Uploading to YT Via Go, YT-API: https://github.com/youtube/api-samples/blob/master/go/upload_video.go
