@@ -30,7 +30,7 @@ The backend server runs on port `:8080`, while the React development server runs
 ## How to build for Release:
 
 ## Server
-Simply exectute `go build main.go`.
+Before running the server, set pathvars `DBUSER` and `DBPASS` accordingly. Once set, exectute `go build main.go`.
 
 ## Frontend 
 Inside the `frontend/client` folder, run `npm run build`. This will compile the client into a single `index.html` file and webpack it.

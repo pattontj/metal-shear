@@ -53,7 +53,7 @@ func getVtubers(c *gin.Context) {
 
 	for rows.Next() {
 		var chuuba vtuber
-		if err := rows.Scan(&chuuba.ID, &chuuba.Name, &chuuba.Affiliation); err != nil {
+		if err := rows.Scan(&chuuba.ID, &chuuba.Name, &chuuba.Channel, &chuuba.Affiliation); err != nil {
 			log.Fatal(err)
 		}
 
