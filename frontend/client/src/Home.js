@@ -14,7 +14,8 @@ class Home extends React.Component {
 
     componentDidMount() {
 
-        fetch("http://localhost:8080/api/clips")
+        // fetch("http://localhost:8080/api/clips")
+        fetch("http://localhost:5050/api/v1/clips")
             .then( response => response.json() )
             .then ( 
                data => this.setState( {clips: data} )
@@ -31,7 +32,7 @@ class Home extends React.Component {
 
             <NavBar />
 
-            { this.state.clips.map( (clip) => <ClipContainer key={clip.id} vtuber={clip.vtuber} link={clip.link} /> )}
+            { this.state.clips.map( (clip) => <ClipContainer key={clip.id} link={clip.video_id} start_s={clip.start_s} end_s={clip.end_s} /> )}
           
         </div>
         )
