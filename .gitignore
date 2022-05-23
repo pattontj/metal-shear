@@ -26,3 +26,10 @@ frontend/client/.env.production.local
 frontend/client/npm-debug.log*
 frontend/client/yarn-debug.log*
 frontend/client/yarn-error.log*
+
+# python
+python-api/clips.db
+python-api/chat-files/*.json
+python-api/statsuki.py
+python-api/.venv/
+python-api/__pycache__/
