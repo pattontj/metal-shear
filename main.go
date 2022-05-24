@@ -6,6 +6,7 @@ import(
 		"log"
 		"strconv"
 //		"sync"
+		"time"
 
 		"net/http"
 		"github.com/gin-gonic/gin"
@@ -13,6 +14,8 @@ import(
 
 		"database/sql"
 		"github.com/go-sql-driver/mysql"
+
+		"pattontj/metal-shear/server"
 )
 
 type vtuber struct {
@@ -33,6 +36,13 @@ type clip struct {
 	Vtuber 		vtuber `json:"vtuber"`
 }
 
+
+type testClip struct {
+	Link 		string `json:"link"`
+	TsBegin 	string `json:"tsBegin"`
+	TsEnd 		string `json:"tsEnd"`
+	VtuberID 	string `json:"vtuberID"`
+}
 
 func getHome(c *gin.Context) {
 	// c.HTML(http.StatusOK, "index.html", nil)
@@ -95,7 +105,6 @@ func getVtuberPage(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, vt)
 
-
 }
 
 // INSERT INTO vtuber
@@ -155,90 +164,6 @@ func getVtuberByName(c *gin.Context) {
 }
 
 
-// this func is actually a fucking nightmare 
-// TODO: un-thread this, original err was referring to the wrong row
-
-/*
-func getClips( c *gin.Context) {
-
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
-	// wait group for threading first row query
-	var wg sync.WaitGroup
-
-	// wrap clips in mutex container
-	type Container struct {
-		mu sync.Mutex
-		clips []clip
-	}
-
-	clipsContainer := Container{}
-
-	wg.Add(1)
-
-	go func(c *Container) {
-
-		// lock mutex
-		c.mu.Lock()
-		defer c.mu.Unlock()
-
-		// sends back done signal at end of func, wg.Wait picks this up
-		defer wg.Done()
-
-		rows, err := db.Query("SELECT * FROM clips")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-
-		for rows.Next() {
-			var clp clip
-			
-			if err := rows.Scan(&clp.ID, &clp.Link, &clp.TsBegin, &clp.TsEnd, &clp.VtuberID); err != nil {
-				log.Fatal(err)
-			}
-
-			c.clips = append(c.clips, clp)
-		}
-
-		rows.Close()
-	}(&clipsContainer)
-
-	// wait for goroutine to finish (hopefully avoids race condition with rows)
-	wg.Wait()
-
-	actualClips := clipsContainer.clips
-
-	var vt = []vtuber {}
-
-	vtuberRow, err := db.Query("SELECT * FROM vtuber")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for vtuberRow.Next() {
-		var chuuba vtuber
-		if err := vtuberRow.Scan(&chuuba.ID, &chuuba.Name, &chuuba.Channel, &chuuba.Affiliation); err != nil {
-			log.Fatal(err)
-		}
-		vt = append(vt, chuuba)
-	}
-
-	// match vtuber info to clip and copy into struct
-	for i, c := range actualClips {	
-		for _, v := range vt {
-			if c.VtuberID == v.ID {
-			actualClips[i].Vtuber = v
-			}
-		} 
-	}
-
-	vtuberRow.Close()
-
-	c.IndentedJSON(http.StatusOK, actualClips)
-}
-*/
-
 func getClips( c *gin.Context ) {
 
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -268,6 +193,54 @@ func getClips( c *gin.Context ) {
 	return 
 }
 
+func postClip( c *gin.Context ) {
+
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
+	var newClip clip
+
+	if err := c.BindJSON(&newClip); err != nil {
+		log.Fatal(err)
+	}
+
+
+	// if newClip.Link == "" {
+	// 	fmt.Println("issue with link")
+	// }
+
+	// if newClip.TsBegin == "" {
+	// 	fmt.Println("issue with tsbegin")
+	// }
+
+	// if newClip.TsEnd == "" {
+	// 	fmt.Println("issue with tsend")
+	// }
+
+	// if newClip.VtuberID == "" {
+	// 	fmt.Println("issue with vtuberid")
+	// }
+
+
+	query := "INSERT INTO clips (link, beginTime, endTime, vtuberID) VALUES(?,?,?,?)"
+
+	insert, err := db.Prepare(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := insert.Exec(&newClip.Link, &newClip.TsBegin, &newClip.TsEnd, &newClip.VtuberID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, rErr := resp.LastInsertId()
+	if rErr != nil {
+		log.Fatal(rErr)
+	}
+
+	c.IndentedJSON(http.StatusCreated, newClip)
+
+}
 
 func example(c *gin.Context) {
 	c.HTML( http.StatusOK,
@@ -280,9 +253,6 @@ func example(c *gin.Context) {
 var db *sql.DB
 
 func main() {
-
-	test := os.Getenv("HOME")
-	fmt.Println(test)
 
 	cfg := mysql.Config{
 		User: os.Getenv("DBUSER"),
@@ -306,22 +276,22 @@ func main() {
 
 	fmt.Println("Connected to DB")
 
+
+	// spin up a light thread to run a yt scrape
+	ticker := time.NewTicker(5 * time.Hour)
+	go server.RunMonitorTick(ticker)
+
+
 	router := gin.Default()
 
 
 //	router.Use( static.Serve( "/", static.LocalFile( "./StartPage", false ) ) )
-
 //	router.Use( static.Serve( "/", static.LocalFile( "./Shoggoth", true ) ) )
 
 //	router.Static("/js", "./js")
 //	router.Static("/css", "./css")
 //	router.LoadHTMLFiles("Shoggoth/index.html")
 	
-	// router.GET("/", example)
-	// router.GET("/examples", example)
-	// router.GET("/about", example)
-	// router.GET("/contact", example)
-
 	router.GET("/shoggoth", nil)
 
 
@@ -332,17 +302,13 @@ func main() {
 		api.GET("/vtubers/page/:page", getVtuberPage)
 		api.GET("/vtubers/:name", getVtuberByName)
 
-
 		api.GET("/clips", getClips)
 
+		api.POST("clips/post", postClip)
 		api.POST("vtubers", postVtubers)
 	}
 
 	router.Run("localhost:8080")
-
-
-	fmt.Println("test")
-
 }
 
 
