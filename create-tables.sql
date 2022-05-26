@@ -1,4 +1,6 @@
+DROP TABLE IF EXISTS clips;
 DROP TABLE IF EXISTS vtuber;
+
 CREATE TABLE vtuber (
     id INT AUTO_INCREMENT NOT NULL,
     title VARCHAR(128) NOT NULL,
@@ -7,7 +9,6 @@ CREATE TABLE vtuber (
     PRIMARY KEY (`id`)
 );
 
-DROP TABLE IF EXISTS clips;
 CREATE TABLE clips (
     id INT AUTO_INCREMENT NOT NULL,
     link VARCHAR(256) NOT NULL,
@@ -18,7 +19,9 @@ CREATE TABLE clips (
     vtuberID INT,
 
     PRIMARY KEY (`id`),
-    FOREIGN KEY (VtuberID) REFERENCES vtuber(id)
+    FOREIGN KEY (VtuberID) REFERENCES vtuber(id),
+
+    CONSTRAINT UC_clip UNIQUE KEY(link,beginTime,endTime)
 );
 
 INSERT INTO vtuber

@@ -203,24 +203,7 @@ func postClip( c *gin.Context ) {
 		log.Fatal(err)
 	}
 
-
-	// if newClip.Link == "" {
-	// 	fmt.Println("issue with link")
-	// }
-
-	// if newClip.TsBegin == "" {
-	// 	fmt.Println("issue with tsbegin")
-	// }
-
-	// if newClip.TsEnd == "" {
-	// 	fmt.Println("issue with tsend")
-	// }
-
-	// if newClip.VtuberID == "" {
-	// 	fmt.Println("issue with vtuberid")
-	// }
-
-
+	// NOTE: This query does not have to check for duplicate clips, this is handled by the database
 	query := "INSERT INTO clips (link, beginTime, endTime, vtuberID) VALUES(?,?,?,?)"
 
 	insert, err := db.Prepare(query)
@@ -230,16 +213,24 @@ func postClip( c *gin.Context ) {
 
 	resp, err := insert.Exec(&newClip.Link, &newClip.TsBegin, &newClip.TsEnd, &newClip.VtuberID)
 	if err != nil {
-		log.Fatal(err)
+		mes, ok := err.(*mysql.MySQLError) // grabs actual err struct
+		if !ok {
+			log.Fatal("something is desperately wrong: ", ok)
+		}
+		// if errcode is dupe key, we can just ignore it
+		if mes.Number == 1062 {
+			c.Status(http.StatusTeapot) // cheeky status
+		} else {
+			log.Fatal(err)
+		}
+	} else { // if there's no err
+		_, rErr := resp.LastInsertId()
+		if rErr != nil {
+			log.Fatal(rErr)
+		}
+
+		c.IndentedJSON(http.StatusCreated, newClip)
 	}
-
-	_, rErr := resp.LastInsertId()
-	if rErr != nil {
-		log.Fatal(rErr)
-	}
-
-	c.IndentedJSON(http.StatusCreated, newClip)
-
 }
 
 func example(c *gin.Context) {
