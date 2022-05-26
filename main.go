@@ -18,24 +18,6 @@ import(
 		"pattontj/metal-shear/server"
 )
 
-type vtuber struct {
-	ID 			string `json:"id"` 
-	Name 		string `json:"name"`
-	Channel		string `json:"channel"`
-	Affiliation string `json:"affiliation"`
-}
-
-
-
-type clip struct {
-	ID 			string `json:"id"`
-	Link 		string `json:"link"`
-	TsBegin 	string `json:"tsBegin"`
-	TsEnd 		string `json:"tsEnd"`
-	VtuberID 	string `json:"vtuberID"`
-	Vtuber 		vtuber `json:"vtuber"`
-}
-
 
 type testClip struct {
 	Link 		string `json:"link"`
@@ -59,10 +41,10 @@ func getVtubers(c *gin.Context) {
 	
 	defer rows.Close()
 
-	var vt = []vtuber {}
+	var vt = []server.Vtuber {}
 
 	for rows.Next() {
-		var chuuba vtuber
+		var chuuba server.Vtuber
 		if err := rows.Scan(&chuuba.ID, &chuuba.Name, &chuuba.Channel, &chuuba.Affiliation); err != nil {
 			log.Fatal(err)
 		}
@@ -92,10 +74,10 @@ func getVtuberPage(c *gin.Context) {
 	defer rows.Close()
 
 
-	var vt = []vtuber {}
+	var vt = []server.Vtuber {}
 
 	for rows.Next() {
-		var chuuba vtuber
+		var chuuba server.Vtuber
 		if err := rows.Scan(&chuuba.ID, &chuuba.Name, &chuuba.Affiliation); err != nil {
 			log.Fatal(err)
 		}
@@ -114,7 +96,7 @@ func getVtuberPage(c *gin.Context) {
 
 
 func postVtubers(c *gin.Context) {
-	var newVtuber vtuber
+	var newVtuber server.Vtuber
 
 	if err := c.BindJSON(&newVtuber); err != nil {
 		return
@@ -150,7 +132,7 @@ func getVtuberByName(c *gin.Context) {
 
 	defer rows.Close()
 
-	var chuuba vtuber
+	var chuuba server.Vtuber
 	rows.Next()
 	if err := rows.Scan( &chuuba.ID, &chuuba.Name, &chuuba.Affiliation ); err != nil {
 		log.Fatal(err) 
@@ -179,10 +161,10 @@ func getClips( c *gin.Context ) {
 
 	defer rows.Close()
 
-	var clips = []clip {}
+	var clips = []server.Clip {}
 
 	for rows.Next() {
-		var clp clip
+		var clp server.Clip
 		if err := rows.Scan( &clp.ID, &clp.Link, &clp.Vtuber.Name, &clp.Vtuber.Channel, &clp.Vtuber.Affiliation ); err != nil {
 			log.Fatal(err)
 		}
@@ -197,7 +179,7 @@ func postClip( c *gin.Context ) {
 
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var newClip clip
+	var newClip server.Clip
 
 	if err := c.BindJSON(&newClip); err != nil {
 		log.Fatal(err)
@@ -268,10 +250,13 @@ func main() {
 	fmt.Println("Connected to DB")
 
 
-	// spin up a light thread to run a yt scrape
-	ticker := time.NewTicker(5 * time.Hour)
-	go server.RunMonitorTick(ticker)
+	chuubas := server.LocalGetVtubers(db)
 
+	// spin up a light thread to run a yt scrape
+	ticker := time.NewTicker(6 * time.Hour)
+	go server.RunMonitorTick(ticker, chuubas)
+
+	fmt.Println("'RunMonitorTick' running on a 6 hour interval")
 
 	router := gin.Default()
 

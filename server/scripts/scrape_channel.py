@@ -17,6 +17,7 @@ def main():
     session = downloader.create_session(YouTubeChatDownloader)
 
     channel_id = sys.argv[1]
+    DB_vtuber_id = sys.argv[2]
 
     # TODO: pass channel ID from cmd
     videos = session.get_user_videos( channel_id, video_status='past' )
@@ -36,7 +37,7 @@ def main():
                 'link' : video_data.get('original_video_id'),
                 'tsBegin' : '0',
                 'tsEnd' : '10',
-                'vtuberID': '2'   # hardcoded for testing purposes
+                'vtuberID': str(DB_vtuber_id)
             }
 
             r = requests.post( 

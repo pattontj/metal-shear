@@ -29,7 +29,7 @@ INSERT INTO vtuber
 VALUES
 ('inugami korone', 'https://www.youtube.com/channel/UChAnqc_AY5_I3Px5dig3X1Q', "hololive"),
 ('pomu rainpuff', 'https://www.youtube.com/channel/UCP4nMSTdwU1KqYWu3UH5DHQ', 'nijisanji'),
-('kson', 'https://www.youtube.com/c/ksonONAIR', 'Indie'),
+('kson', 'https://www.youtube.com/channel/UC9ruVYPv7yJmV0Rh0NKA-Lw', 'Indie'),
 ('nina kosaka', 'https://www.youtube.com/channel/UCkieJGn3pgJikVW8gmMXE2w', 'nijisanji');
 
 
