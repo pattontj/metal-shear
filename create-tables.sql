@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS clips;
 DROP TABLE IF EXISTS vtuber;
 
-CREATE TABLE vtuber (
+CREATE TABLE streamer (
     id INT AUTO_INCREMENT NOT NULL,
     title VARCHAR(128) NOT NULL,
     channel VARCHAR(256) NOT NULL,
@@ -16,15 +16,15 @@ CREATE TABLE clips (
     beginTime INT,
     endTime INT,
 
-    vtuberID INT,
+    streamerID INT,
 
     PRIMARY KEY (`id`),
-    FOREIGN KEY (VtuberID) REFERENCES vtuber(id),
+    FOREIGN KEY (streamerID) REFERENCES streamer(id),
 
     CONSTRAINT UC_clip UNIQUE KEY(link,beginTime,endTime)
 );
 
-INSERT INTO vtuber
+INSERT INTO streamer
 (title, channel, affiliation)
 VALUES
 ('inugami korone', 'https://www.youtube.com/channel/UChAnqc_AY5_I3Px5dig3X1Q', "hololive"),
@@ -34,8 +34,8 @@ VALUES
 
 
 INSERT INTO clips
-(link, beginTime, endTime, vtuberID)
+(link, beginTime, endTime, streamerID)
 VALUES
 ('https://www.youtube.com/watch?v=5VWWIXD4mHE', '0', '0', 
-    (SELECT id FROM vtuber WHERE title ='nina kosaka')
+    (SELECT id FROM streamer WHERE title ='nina kosaka')
 )

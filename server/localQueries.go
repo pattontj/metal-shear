@@ -1,23 +1,23 @@
 package server
 
 import (
-	"log"
 	"database/sql"
+	"log"
 )
 
-func LocalGetVtubers( db *sql.DB ) ([]Vtuber) {
+func LocalGetStreamers(db *sql.DB) []Streamer {
 
-	rows, err := db.Query("SELECT * FROM vtuber")
+	rows, err := db.Query("SELECT * FROM streamer")
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	defer rows.Close()
 
-	var vt = []Vtuber {}
+	var vt = []Streamer{}
 
 	for rows.Next() {
-		var chuuba Vtuber
+		var chuuba Streamer
 		if err := rows.Scan(&chuuba.ID, &chuuba.Name, &chuuba.Channel, &chuuba.Affiliation); err != nil {
 			log.Fatal(err)
 		}
